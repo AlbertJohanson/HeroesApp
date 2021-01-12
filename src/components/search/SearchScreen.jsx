@@ -1,32 +1,33 @@
+/* eslint-disable react/jsx-props-no-spreading */
+/* eslint-disable react/no-unescaped-entities */
+/* eslint-disable react/jsx-one-expression-per-line */
+/* eslint-disable react/jsx-indent */
 /* eslint-disable no-console */
 /* eslint-disable import/prefer-default-export */
-import React from 'react';
+import React, { useMemo } from 'react';
 import queryString from 'query-string';
 
 import { useLocation } from 'react-router-dom';
-import { heroes } from '../../data/heroes';
 import { useForm } from '../../hooks/useForm';
-import {HeroCard} from '../heroes/Hero-Card/HeroCard';
+import { HeroCard } from '../heroes/Hero-Card/HeroCard';
+import { getHeroesByName } from '../../selectors/getHeroesByName';
 
-export const SearchScreen = ({ history}) => {
+export const SearchScreen = ({ history }) => {
+  const location = useLocation();
+  const { q = '' } = queryString.parse(location.search);
 
-
-    const location = useLocation();
-     const {q = ''} = queryString.parse( location.search )
-
-  const [ formValues, handleInputChange, reset ] = useForm({
-    searchText: q
+  const [formValues, handleInputChange] = useForm({
+    searchText: q,
   });
 
-  const { searchText } = formValues
+  const { searchText } = formValues;
 
-  const heroesFiltered = heroes;
-
+  const heroesFiltered = useMemo(() => getHeroesByName(q), [q]);
 
   const handleSearch = (e) => {
-      e.preventDefault()
-      history.push(`?q=${searchText}`)
-  }
+    e.preventDefault();
+    history.push(`?q=${searchText}`);
+  };
 
   return (
     <div>
@@ -60,6 +61,14 @@ export const SearchScreen = ({ history}) => {
         <div className="col-7">
           <h4> Results </h4>
           <hr />
+          {
+              (q === '') &&
+          <div className="alert alert-info">Search a hero</div>
+          } 
+          {
+              (q !== '' && heroesFiltered.length === 0) &&
+          <div className="alert alert-danger">This hero doesn´t exist {searchText}</div>
+          }
           {heroesFiltered.map((hero) => (
             <HeroCard key={hero.id} {...hero} />
           ))}
