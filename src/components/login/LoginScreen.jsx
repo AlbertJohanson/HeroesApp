@@ -18,8 +18,10 @@ export const LoginScreen = ({ history }) => {
           name: 'Albert Johanson'
         }
       })
+
+      const lastPath = localStorage.getItem('lastPath' || '/')
       
-      history.replace('/')
+      history.replace(lastPath)
   }
 
   return (
